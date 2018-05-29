@@ -98,7 +98,6 @@ public class POSTaggerAnnotator implements Annotator  {
   @Override
   public void annotate(Annotation annotation) {
     // turn the annotation into a sentence
-    log.log("try to add pos tags");
     if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
       if (nThreads == 1) {
         for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -140,29 +139,24 @@ public class POSTaggerAnnotator implements Annotator  {
     int t_size = tokens.size();
     if (t_size <= maxSentenceLength) {
       try {
-        log.log(sentence.toString());
-        log.log(tokens);
         String sent = "";
         List<CoreLabel> tokens_ = tokens.subList(0, t_size - 1);
         for (CoreLabel token: tokens_){
           sent += token.word() + " ";
         }
         sent += tokens.get(t_size - 1).word() + "\n";
-        log.log(sent);
         String ret = null;
         try {
           ret = this.sendPost(sent);
         } catch (Exception e) {
           e.printStackTrace();
         }
-        log.log(ret);
         String[] tagged_ = ret.split("\\s+");
         // tagged = pos.tagSentence(tokens, this.reuseTags);
         for (String token:tagged_) {
           String[] tg = token.split("/");
           tagged.add(new TaggedWord(tg[0], tg[1]));
         }
-        log.log(tagged);
       } catch (OutOfMemoryError e) {
         log.error(e); // Beware that we can now get an OOM in logging, too.
         log.warn("Tagging of sentence ran out of memory. " +
